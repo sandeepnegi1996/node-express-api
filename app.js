@@ -1,6 +1,9 @@
 const express = require("express");
 const app = express();
 
+const Joi = require("joi");
+
+app.use(express.json());
 //i will create an array which will be having all the information
 //this array basically resembles what is the type of information which is stored
 // inside the dynamo db by the devices
@@ -8,7 +11,7 @@ const app = express();
 //one will show all the nodes
 // other will show the specific node
 
-const data = [
+const nodes = [
   {
     DeviceId: "nodedevice1",
     temperature: 23,
@@ -32,16 +35,16 @@ app.get("/", (req, res) => {
 });
 
 app.get("/api/getallnodes", (req, res) => {
-  res.send(data);
+  res.send(nodes);
 });
 //========================================================================================================
-//================================THIS IS IMPORTANT ENDPOINT=============================================
+//================================THIS IS IMPORTANT ENDPOINT (GET) REQUEST=============================================
 //endpoint for the particular node
 app.get("/api/getnodebyid/:nodeid", (req, res) => {
   const valuepassed = req.params.nodeid;
   //console.log(valuepassed);
   //console.log(typeof valuepassed);
-  const node = data.find(c => c.DeviceId === req.params.nodeid);
+  const node = nodes.find(c => c.DeviceId === req.params.nodeid);
 
   if (!node) {
     res.status(404).send("node with given name is not there");
@@ -58,6 +61,63 @@ app.get("/api/getnodebydate/:year/:month", (req, res) => {
 app.get("/api/getnodebydatesort/:year/:month", (req, res) => {
   res.send(req.query);
 });
+
+//==============================================================HTTP POST REQUEST======================================================
+//=====================================================================================================================================
+
+app.post("/api/postnode", (req, res) => {
+  const schema = {
+    DeviceId: Joi.string()
+      .min(3)
+      .required(),
+
+    temperature: Joi.number().required(),
+    FFTX1: Joi.number().required(),
+    FFTX2: Joi.number().required(),
+    FFTY1: Joi.number().required(),
+    FFTY2: Joi.number().required()
+  };
+
+  const result = Joi.validate(req.body, schema);
+  console.log(result);
+  if (result.error) {
+    res.status(400).send(result.error.details[0].message);
+    return;
+  }
+
+  const node = {
+    DeviceId: req.body.DeviceId,
+    temperature: req.body.temperature,
+    FFTX1: req.body.FFTX1,
+    FFTX2: req.body.FFTX2,
+    FFTY1: req.body.FFTY1,
+    FFTY2: req.body.FFTY2
+  };
+
+  nodes.push(node);
+  res.send(nodes);
+});
+
+// app.post("/api/postnodetest", (req, res) => {
+//   if (!req.body.name || req.body.DeviceId.length < 3) {
+//     res.status(400).send("device name should be greater than 3");
+//     return;
+//   }
+
+//   const node = {
+//     DeviceId: req.body.DeviceId,
+//     temperature: req.body.temperature,
+//     FFTX1: req.body.FFTX1,
+//     FFTX2: req.body.FFTX2,
+//     FFTY1: req.body.FFTY1,
+//     FFTY2: req.body.FFTY2
+//   };
+
+//   nodes.push(node);
+//   res.send(nodes);
+// });
+
+//=====================================================================================================================================
 
 // app.get("/api/getlatest", (req, res) => {
 //   res.send([
