@@ -1,9 +1,21 @@
 "use strict";
 
+const AWS = require("aws-sdk");
+
 const express = require("express");
 const app = express();
 
 const Joi = require("joi");
+AWS.config.update({ region: "us-east-2" });
+
+var dynamodb = new AWS.DynamoDB();
+var params = {
+  TableName: "movies",
+  Item: {
+    id: { S: "firstmovie" },
+    moviename: { S: "Fast and the Furious" }
+  }
+};
 
 app.use(express.json());
 //i will create an array which will be having all the information
@@ -33,6 +45,7 @@ const nodes = [
 ];
 
 app.get("/", (req, res) => {
+  //dynamodb.putItem(params, callback);
   res.send("hello world!!! after nodemon");
 });
 
