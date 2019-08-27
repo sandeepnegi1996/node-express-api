@@ -1,3 +1,5 @@
+"use strict";
+
 const express = require("express");
 const app = express();
 
@@ -142,6 +144,7 @@ const port = process.env.PORT || 3000;
 
 // || pipe is used so that if no value is assigned for the port it will take it as 4000
 
-app.listen(port, () => {
-  console.log(`listening on port ${port}`);
-});
+// app.listen(port, () => {
+//   console.log(`listening on port ${port}`);
+// });
+module.exports = app;
